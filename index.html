@@ -1,0 +1,404 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Alta Cal Remeasure Sheet</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: field clipboard — sticky tool rail over a sheet of graph paper, job-specific takeoff table below */
+:root{
+  --bg:#eef1f4; --surface:#ffffff; --fg:#17212b; --muted:#5a6672; --line:#d3d9df;
+  --ink:#1d3557; --accent:#c4302b; --accent-soft:#fbe7e5; --chip:#e3e8ee;
+  --paper:#fdfdfb; --grid:#cfd8e3; --grid-major:#a9b8c8; --note:#fff3b0; --note-edge:#d9c25a;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12171d; --surface:#1b222a; --fg:#e7ecf1; --muted:#9aa6b2; --line:#2e3843;
+  --accent:#ff6b5e; --accent-soft:#3a1f1d; --chip:#26303a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12171d; --surface:#1b222a; --fg:#e7ecf1; --muted:#9aa6b2; --line:#2e3843;
+  --accent:#ff6b5e; --accent-soft:#3a1f1d; --chip:#26303a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;padding-top:16px}
+h1{font-family:var(--display);font-weight:700;font-size:28px;letter-spacing:.04em;text-transform:uppercase;margin:0;line-height:1}
+.sub{color:var(--muted);font-size:13px;margin-top:4px}
+.btn{font:600 14px var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:8px;padding:9px 12px;cursor:pointer;min-height:40px}
+.btn:focus-visible,.tool:focus-visible,.chip:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--accent)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.lbl{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hdr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+.hdr label{display:flex;flex-direction:column;gap:3px;min-width:0}
+input,select,textarea{font:500 16px var(--body);color:var(--fg);background:transparent;border:none;border-bottom:1.5px solid var(--line);padding:6px 2px;width:100%;border-radius:0}
+select{border:1.5px solid var(--line);border-radius:6px;padding:6px}
+textarea{border:1.5px solid var(--line);border-radius:6px;min-height:90px;resize:vertical}
+.jobs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{flex:0 0 auto;font:600 15px var(--display);letter-spacing:.06em;text-transform:uppercase;padding:9px 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px;display:flex;flex-direction:column;gap:8px;box-shadow:0 4px 14px rgba(20,30,40,.08)}
+.tools{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.tool{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:58px;padding:6px 6px;border-radius:8px;border:1.5px solid transparent;background:var(--chip);color:var(--fg);cursor:pointer;font:600 12px var(--display);letter-spacing:.05em;text-transform:uppercase}
+.tool svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tool[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.tool:disabled{opacity:.4}
+.sep{flex:0 0 1px;background:var(--line);margin:4px 2px}
+.syms{display:flex;gap:6px;overflow-x:auto;align-items:center;scrollbar-width:none}
+.sym{flex:0 0 auto;display:flex;align-items:center;gap:6px;padding:5px 10px 5px 5px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;font:500 13px var(--body)}
+.sym b{display:inline-grid;place-items:center;min-width:28px;height:28px;padding:0 5px;border-radius:14px;border:2px solid var(--ink);color:var(--ink);background:#fff;font:700 13px var(--display)}
+.sym[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.opts{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.opts select{width:auto;font-size:14px;padding:4px 6px}
+.opts label{display:flex;gap:6px;align-items:center}
+.opts input[type=checkbox]{width:18px;height:18px}
+.selbar{display:flex;gap:6px;align-items:center;font-size:13px}
+.sheet-wrap{background:var(--paper);border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+#board{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+#board.scroll{touch-action:pan-x pan-y pinch-zoom}
+.hint{font-size:13px;color:var(--muted)}
+.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid var(--fg);border-left:1px solid var(--line)}
+.cell{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.cell .name{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.02em}
+.cell .in{display:flex;align-items:center;gap:6px}
+.cell .unit{font:600 13px var(--display);color:var(--muted);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.cell.calc input{color:var(--accent);font-weight:700}
+.yn{display:flex;gap:4px}
+.yn button{flex:1;font:600 14px var(--display);letter-spacing:.06em;padding:7px 0;border:1.5px solid var(--line);background:var(--surface);color:var(--fg);border-radius:6px;cursor:pointer}
+.yn button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.fields-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.fields-head h2{font-family:var(--display);font-size:22px;text-transform:uppercase;letter-spacing:.05em;margin:0}
+.notes-box{margin-top:12px}
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(10,15,20,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--surface);color:var(--fg);width:100%;max-width:520px;border-radius:14px 14px 0 0;padding:18px max(18px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px}
+.modal h3{margin:0;font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:.05em}
+.modal label{display:flex;flex-direction:column;gap:4px}
+.modal .row{justify-content:flex-end}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;z-index:30}
+@media (max-width:720px){.fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:440px){.hdr{grid-template-columns:1fr}.fields{grid-template-columns:1fr}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Remeasure Sheet</h1>
+      <div class="sub">Alta California Construction · CSLB #1106881</div>
+    </div>
+    <div class="row">
+      <button class="btn primary" id="pdfBtn" type="button">Save PDF to print</button>
+      <button class="btn" id="copyBtn" type="button">Copy summary</button>
+      <button class="btn danger" id="newBtn" type="button">New sheet</button>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="hdr">
+      <label><span class="lbl">Name</span><input id="h_name" autocomplete="off"></label>
+      <label><span class="lbl">Address</span><input id="h_addr" autocomplete="off"></label>
+      <label><span class="lbl">Phone #</span><input id="h_phone" inputmode="tel" autocomplete="off"></label>
+      <label><span class="lbl">City / State / Zip</span><input id="h_city" autocomplete="off"></label>
+      <label><span class="lbl">Date</span><input id="h_date" type="date"></label>
+      <label><span class="lbl">Existing type &amp; year</span><input id="h_type" autocomplete="off"></label>
+    </div>
+  </section>
+
+  <div>
+    <div class="lbl" style="margin-bottom:6px">Job type</div>
+    <div class="jobs" id="jobs" role="group" aria-label="Job type"></div>
+  </div>
+
+  <div class="rail">
+    <div class="tools" id="tools" role="group" aria-label="Drawing tools"></div>
+    <div class="syms" id="syms" role="group" aria-label="Symbols"></div>
+    <div class="opts">
+      <label>Scale <select id="scale">
+        <option value="0">Not to scale (type ft)</option>
+        <option value="1">1 square = 1 ft</option>
+        <option value="2">1 square = 2 ft</option>
+        <option value="5">1 square = 5 ft</option>
+        <option value="10">1 square = 10 ft</option>
+      </select></label>
+      <label><input type="checkbox" id="snap" checked> Snap to grid</label>
+      <span class="selbar" id="selbar" hidden>
+        <button class="btn" id="rotSel" type="button" hidden>Rotate 90°</button>
+        <button class="btn" id="editSel" type="button">Edit</button>
+        <button class="btn danger" id="delSel" type="button">Delete</button>
+      </span>
+    </div>
+  </div>
+
+  <div class="sheet-wrap"><svg id="board" viewBox="0 0 1000 1200" xmlns="http://www.w3.org/2000/svg" aria-label="Drawing grid">
+    <defs>
+      <pattern id="minor" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern>
+      <pattern id="major" width="125" height="125" patternUnits="userSpaceOnUse"><rect width="125" height="125" fill="url(#minor)"/><path d="M125 0H0V125" fill="none" stroke="var(--grid-major)" stroke-width="1.5"/></pattern>
+    </defs>
+    <rect width="1000" height="1200" fill="var(--paper)"/>
+    <rect width="1000" height="1200" fill="url(#major)"/>
+    <g id="layer"></g><g id="temp"></g>
+  </svg></div>
+  <div class="hint" id="hint"></div>
+
+  <section class="panel">
+    <div class="fields-head"><h2 id="fieldsTitle">Roof takeoff</h2><span class="hint">Fields change with the job type</span></div>
+    <div class="fields" id="fields"></div>
+    <label class="notes-box" style="display:flex;flex-direction:column;gap:4px"><span class="lbl">Job notes</span><textarea id="jobNotes" placeholder="Access, pets, gate code, special conditions…"></textarea></label>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const JOBS={
+ roof:{label:'Roof',fields:[
+  {id:'total_sq',n:'Total squares',t:'num',u:'SQ'},{id:'flat_sq',n:'Flat roof section total squares',t:'num',u:'SQ'},
+  {id:'edge_color',n:'Edge metal color',t:'text'},{id:'flash',n:'Flashing & caps',t:'num',u:'Qty'},
+  {id:'fascia',n:'Replace LNFT of fascia',t:'num',u:'LF'},{id:'edge_size',n:'Size of edge metal',t:'text'},
+  {id:'layers',n:'Layers',t:'sel',o:['','1','2','3','4']},{id:'onebysix',n:'Replace LNFT of 1x6',t:'num',u:'LF'},
+  {id:'garage_sq',n:'Garage squares',t:'num',u:'SQ'},{id:'ridge',n:'Ridge vent',t:'num',u:'LF'},
+  {id:'osb',n:'Replace squares of OSB',t:'num',u:'SQ'},{id:'saddle',n:'Chimney saddle stock',t:'num',u:'Qty'}],
+  syms:[{k:'V',n:'Vent pipe'},{k:'RV',n:'Ridge vent'},{k:'SK',n:'Skylight',ask:'Size'},{k:'CH',n:'Chimney'},{k:'AC',n:'AC unit'},{k:'SAT',n:'Dish'},{k:'SP',n:'Solar'},{k:'FL',n:'Flat section'},{k:'P',n:'Pitch',ask:'Pitch (e.g. 4/12)'}]},
+ pavers:{label:'Pavers',fields:[
+  {id:'sqft',n:'Total square feet',t:'num',u:'SF'},{id:'style',n:'Paver style / color',t:'text'},
+  {id:'border',n:'Border',t:'num',u:'LF'},{id:'demo',n:'Demo existing',t:'yn'},
+  {id:'base',n:'Base depth',t:'num',u:'IN'},{id:'steps',n:'Steps',t:'num',u:'Qty'},
+  {id:'wall',n:'Seat / retaining wall',t:'num',u:'LF'},{id:'drain',n:'Drain line',t:'num',u:'LF'},
+  {id:'sealer',n:'Sealer',t:'yn'},{id:'access',n:'Equipment access',t:'text'}],
+  syms:[{k:'DR',n:'Drain'},{k:'HB',n:'Hose bib'},{k:'SH',n:'Sprinkler'},{k:'TR',n:'Tree'},{k:'ST',n:'Step',ask:'Rise / width'},{k:'G',n:'Gate'},{k:'UB',n:'Utility box'}]},
+ windows:{label:'Windows',fields:[
+  {id:'win',n:'Window count',t:'num',u:'Qty'},{id:'doors',n:'Patio / slider doors',t:'num',u:'Qty'},
+  {id:'install',n:'Install type',t:'sel',o:['','Retrofit','New construction','Block frame']},
+  {id:'ext',n:'Exterior color',t:'text'},{id:'int',n:'Interior color',t:'text'},
+  {id:'glass',n:'Glass package',t:'text'},{id:'grids',n:'Grids',t:'yn'},
+  {id:'temp',n:'Tempered required',t:'num',u:'Qty'},{id:'egress',n:'Egress required',t:'num',u:'Qty'},
+  {id:'trim',n:'Trim / stucco repair',t:'num',u:'LF'},{id:'screens',n:'Screens',t:'yn'}],
+  syms:[{k:'SL',n:'Slider',ask:'Size W x H'},{k:'SH',n:'Single hung',ask:'Size W x H'},{k:'CS',n:'Casement',ask:'Size W x H'},{k:'PW',n:'Picture',ask:'Size W x H'},{k:'SGD',n:'Slider door',ask:'Size W x H'},{k:'FD',n:'French door',ask:'Size W x H'},{k:'T',n:'Tempered'},{k:'E',n:'Egress'}]},
+ coating:{label:'Coating',fields:[
+  {id:'wall',n:'Wall area',t:'num',u:'SF'},{id:'eaves',n:'Eaves',t:'num',u:'LF'},
+  {id:'fascia',n:'Fascia',t:'num',u:'LF'},{id:'stories',n:'Stories',t:'sel',o:['','1','2','3']},
+  {id:'product',n:'Product',t:'sel',o:['','Lifetime Plus','Cool Life','Other']},{id:'color',n:'Color',t:'text'},
+  {id:'stucco',n:'Stucco repair',t:'num',u:'SF'},{id:'wood',n:'Wood repair',t:'num',u:'LF'},
+  {id:'primer',n:'Primer',t:'yn'}],
+  syms:[{k:'GM',n:'Gas meter'},{k:'EM',n:'Electric meter'},{k:'HB',n:'Hose bib'},{k:'LT',n:'Light'},{k:'AC',n:'AC unit'},{k:'VT',n:'Vent'},{k:'CR',n:'Crack / repair',ask:'Size / note'}]},
+ insulation:{label:'Insulation',fields:[
+  {id:'attic',n:'Attic area',t:'num',u:'SF'},{id:'type',n:'Insulation type',t:'sel',o:['','Blown fiberglass','Blown cellulose','Batts','Spray foam']},
+  {id:'exist',n:'Existing depth',t:'num',u:'IN'},{id:'rval',n:'Target R-value',t:'text'},
+  {id:'remove',n:'Remove existing',t:'yn'},{id:'airseal',n:'Air sealing',t:'yn'},
+  {id:'baffles',n:'Baffles',t:'num',u:'Qty'},{id:'cans',n:'Recessed lights',t:'num',u:'Qty'},
+  {id:'access',n:'Attic access location',t:'text'}],
+  syms:[{k:'AA',n:'Attic access'},{k:'RL',n:'Recessed light'},{k:'FN',n:'Exhaust fan'},{k:'V',n:'Vent'},{k:'D',n:'Duct'},{k:'HV',n:'HVAC unit'}]},
+ gutters:{label:'Gutters',fields:[
+  {id:'size',n:'Gutter size',t:'sel',o:['','5 inch','6 inch']},{id:'color',n:'Gutter color',t:'text'},
+  {id:'gut',n:'Ln Ft of gutters (approx)',t:'num',u:'LF'},{id:'ds',n:'Ln Ft of downspouts (approx)',t:'num',u:'LF'},
+  {id:'total',n:'Total gutters + downspouts',t:'calc',u:'LF',f:v=>(+v.gut||0)+(+v.ds||0)},
+  {id:'removal',n:'Gutter removal',t:'yn'},{id:'rafter',n:'Rafter tail replacement',t:'yn'},
+  {id:'cable',n:'Cable relocation',t:'yn'},{id:'filter',n:'Gutter filter',t:'yn'},
+  {id:'fascia',n:'Fascia replacement',t:'num',u:'LF'}],
+  syms:[{k:'DS',n:'Downspout',ask:'Length (ft)'},{k:'IC',n:'Inside corner'},{k:'OC',n:'Outside corner'},{k:'EC',n:'End cap'},{k:'SB',n:'Splash block'},{k:'UG',n:'Underground drain'}]},
+ flooring:{label:'Flooring',fields:[
+  {id:'sqft',n:'Total square feet',t:'num',u:'SF'},{id:'type',n:'Flooring type',t:'sel',o:['','LVP','Laminate','Tile','Hardwood','Carpet']},
+  {id:'rooms',n:'Rooms',t:'num',u:'Qty'},{id:'base',n:'Baseboard',t:'num',u:'LF'},
+  {id:'trans',n:'Transitions',t:'num',u:'Qty'},{id:'stairs',n:'Stair treads',t:'num',u:'Qty'},
+  {id:'remove',n:'Remove existing',t:'yn'},{id:'subfloor',n:'Subfloor repair',t:'num',u:'SF'},
+  {id:'under',n:'Underlayment',t:'yn'},{id:'furn',n:'Move furniture',t:'yn'}],
+  syms:[{k:'TR',n:'Transition'},{k:'DR',n:'Door'},{k:'ST',n:'Stairs'},{k:'CL',n:'Closet'},{k:'RG',n:'Register'},{k:'CB',n:'Cabinet'}]}
+};
+const TOOLS=[
+ {id:'scroll',n:'Scroll',i:'<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'},
+ {id:'select',n:'Move',i:'<path d="M5 3l14 8-6 2-2 6z"/>'},
+ {id:'pen',n:'Pen',i:'<path d="M4 20l4-1 11-11-3-3L5 16z"/>'},
+ {id:'line',n:'Line ft',i:'<path d="M4 20L20 4"/><path d="M2 18l4 4M18 2l4 4"/>'},
+ {id:'rect',n:'Box ft',i:'<rect x="4" y="6" width="16" height="12"/>'},
+ {id:'note',n:'Note',i:'<path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5M8 9h8M8 13h5"/>'},
+ {id:'sym',n:'Symbol',i:'<circle cx="12" cy="12" r="8"/><path d="M9 12h6"/>'},
+ {id:'erase',n:'Erase',i:'<path d="M16 3l5 5-11 11H5l-2-2z"/><path d="M11 8l5 5"/>'}
+];
+const KEY='altaRemeasure.v1';
+let S={h:{},job:'roof',f:{},notes:'',items:[],scale:0,snap:true};
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d)S=Object.assign(S,d)}catch(e){}
+if(!S.h.h_date){const t=new Date();S.h.h_date=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0')}
+let tool='pen',curSym=null,sel=null,undo=[],redo=[];
+const $=id=>document.getElementById(id),NS='http://www.w3.org/2000/svg';
+const board=$('board'),layer=$('layer'),temp=$('temp');
+let saveT;function save(){clearTimeout(saveT);saveT=setTimeout(()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}},250)}
+function snapshot(){undo.push(JSON.stringify(S.items));if(undo.length>80)undo.shift();redo=[];renderTools()}
+function uid(){return Math.random().toString(36).slice(2,9)}
+
+/* header */
+['h_name','h_addr','h_phone','h_city','h_date','h_type'].forEach(id=>{const el=$(id);el.value=S.h[id]||'';el.oninput=()=>{S.h[id]=el.value;save()}});
+$('jobNotes').value=S.notes||'';$('jobNotes').oninput=e=>{S.notes=e.target.value;save()};
+$('scale').value=String(S.scale);$('scale').onchange=e=>{S.scale=+e.target.value;save()};
+$('snap').checked=S.snap;$('snap').onchange=e=>{S.snap=e.target.checked;save()};
+
+/* jobs */
+function renderJobs(){const w=$('jobs');w.innerHTML='';Object.entries(JOBS).forEach(([k,j])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.id='job_'+k;b.textContent=j.label;b.setAttribute('aria-pressed',S.job===k);b.onclick=()=>{S.job=k;curSym=null;save();renderJobs();renderSyms();renderFields()};w.appendChild(b)})}
+function renderSyms(){const w=$('syms');w.innerHTML='';JOBS[S.job].syms.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='sym';b.innerHTML='<b></b><span></span>';b.querySelector('b').textContent=s.k;b.querySelector('span').textContent=s.n;b.setAttribute('aria-pressed',tool==='sym'&&curSym&&curSym.k===s.k);b.onclick=()=>{curSym=s;setTool('sym')};w.appendChild(b)})}
+function renderFields(){
+  const j=JOBS[S.job];$('fieldsTitle').textContent=j.label+' takeoff';
+  const v=S.f[S.job]||(S.f[S.job]={});const w=$('fields');w.innerHTML='';
+  j.fields.forEach(fd=>{
+    const c=document.createElement('div');c.className='cell'+(fd.t==='calc'?' calc':'');
+    const nm=document.createElement('label');nm.className='name';nm.textContent=fd.n;nm.htmlFor='f_'+S.job+'_'+fd.id;c.appendChild(nm);
+    const row=document.createElement('div');row.className='in';
+    if(fd.t==='yn'){row.className='yn';['Yes','No'].forEach(o=>{const b=document.createElement('button');b.type='button';b.textContent=o;b.setAttribute('aria-pressed',v[fd.id]===o);b.onclick=()=>{v[fd.id]=v[fd.id]===o?'':o;save();renderFields()};row.appendChild(b)})}
+    else if(fd.t==='sel'){const s=document.createElement('select');s.id='f_'+S.job+'_'+fd.id;fd.o.forEach(o=>{const op=document.createElement('option');op.value=o;op.textContent=o||'Select…';s.appendChild(op)});s.value=v[fd.id]||'';s.onchange=()=>{v[fd.id]=s.value;save()};row.appendChild(s)}
+    else{const i=document.createElement('input');i.id='f_'+S.job+'_'+fd.id;
+      if(fd.t==='calc'){i.readOnly=true;i.value=fd.f(v)||'';i.dataset.calc=fd.id}
+      else{i.value=v[fd.id]||'';if(fd.t==='num'){i.inputMode='decimal';i.placeholder='Qty'}
+        i.oninput=()=>{v[fd.id]=i.value;save();j.fields.filter(x=>x.t==='calc').forEach(x=>{const ci=w.querySelector('[data-calc="'+x.id+'"]');if(ci)ci.value=x.f(v)||''})}}
+      row.appendChild(i)}
+    if(fd.u){const u=document.createElement('span');u.className='unit';u.textContent=fd.u;row.appendChild(u)}
+    c.appendChild(row);w.appendChild(c)})
+}
+
+/* tools */
+function renderTools(){const w=$('tools');w.innerHTML='';
+  TOOLS.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tool';b.innerHTML='<svg viewBox="0 0 24 24">'+t.i+'</svg>'+t.n;b.setAttribute('aria-pressed',tool===t.id);b.onclick=()=>{if(t.id==='sym'&&!curSym)curSym=JOBS[S.job].syms[0];setTool(t.id)};w.appendChild(b)});
+  const sp=document.createElement('span');sp.className='sep';w.appendChild(sp);
+  [['Undo','<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/>',doUndo,!undo.length],['Redo','<path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/>',doRedo,!redo.length]].forEach(([n,i,fn,dis])=>{const b=document.createElement('button');b.type='button';b.className='tool';b.disabled=dis;b.innerHTML='<svg viewBox="0 0 24 24">'+i+'</svg>'+n;b.onclick=fn;w.appendChild(b)})}
+const HINTS={scroll:'Scroll mode: drag to move the page, pinch to zoom.',select:'Tap an item to select it, drag to move. Use Edit to change a measurement or note. Notes can be rotated to fit narrow areas.',pen:'Draw freehand with your finger or stylus.',line:'Drag to draw a line, then enter its length in feet.',rect:'Drag to draw a box, then enter width and length in feet.',note:'Tap an empty spot to add a note. Tap an existing note to change its text or turn it vertical.',sym:'Pick a symbol above, then tap the sketch to place it.',erase:'Tap an item to remove it.'};
+function setTool(t){tool=t;setSel(null);board.classList.toggle('scroll',t==='scroll');$('hint').textContent=HINTS[t];renderTools();renderSyms()}
+function doUndo(){if(!undo.length)return;redo.push(JSON.stringify(S.items));S.items=JSON.parse(undo.pop());setSel(null);draw();save();renderTools()}
+function doRedo(){if(!redo.length)return;undo.push(JSON.stringify(S.items));S.items=JSON.parse(redo.pop());setSel(null);draw();save();renderTools()}
+
+/* geometry */
+function pt(e){const p=board.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const r=p.matrixTransform(board.getScreenCTM().inverse());return{x:r.x,y:r.y}}
+function sn(p){if(!S.snap)return p;const g=12.5;return{x:Math.round(p.x/g)*g,y:Math.round(p.y/g)*g}}
+function autoFt(units){if(!S.scale)return'';const ft=units/25*S.scale;const whole=Math.floor(ft+1e-6),inch=Math.round((ft-whole)*12);return inch===12?(whole+1)+"'":inch?whole+"' "+inch+'"':whole+"'"}
+function fmt(s){s=(s||'').trim();if(/^\d+(\.\d+)?$/.test(s))return s+"'";return s}
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);(p||layer).appendChild(e);return e}
+function tag(g,x,y,text,ang,color){if(!text)return;const w=text.length*9.2+12;const gg=el('g',{transform:'translate('+x+' '+y+') rotate('+ang+')'},g);
+  el('rect',{x:-w/2,y:-13,width:w,height:24,rx:4,fill:'#fff',stroke:color||'#c4302b','stroke-width':1.5},gg);
+  const t=el('text',{x:0,y:5,'text-anchor':'middle','font-family':'Barlow Condensed,Arial Narrow,sans-serif','font-weight':700,'font-size':17,fill:color||'#c4302b'},gg);t.textContent=text}
+function lineLabel(g,x1,y1,x2,y2,text){if(!text)return;let a=Math.atan2(y2-y1,x2-x1)*180/Math.PI;if(a>90)a-=180;if(a<=-90)a+=180;const r=a*Math.PI/180;const ox=Math.sin(r)*-16,oy=Math.cos(r)*16*-1;tag(g,(x1+x2)/2+ox,(y1+y2)/2+oy,text,a)}
+const INK='#1d3557';
+function drawItem(it,parent){
+  const g=el('g',{'data-id':it.id},parent);const hl=sel===it.id;
+  if(it.t==='line'){el('line',{x1:it.x1,y1:it.y1,x2:it.x2,y2:it.y2,stroke:'transparent','stroke-width':22},g);
+    el('line',{x1:it.x1,y1:it.y1,x2:it.x2,y2:it.y2,stroke:hl?'#c4302b':INK,'stroke-width':3.5,'stroke-linecap':'round'},g);lineLabel(g,it.x1,it.y1,it.x2,it.y2,it.label)}
+  else if(it.t==='path'){const d='M'+it.pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');el('path',{d,fill:'none',stroke:'transparent','stroke-width':20,'stroke-linecap':'round'},g);el('path',{d,fill:'none',stroke:hl?'#c4302b':INK,'stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round'},g)}
+  else if(it.t==='rect'){const x=Math.min(it.x,it.x+it.w),y=Math.min(it.y,it.y+it.h),w=Math.abs(it.w),h=Math.abs(it.h);
+    el('rect',{x,y,width:w,height:h,fill:'rgba(29,53,87,.04)',stroke:hl?'#c4302b':INK,'stroke-width':3.5},g);
+    lineLabel(g,x,y,x+w,y,it.lw);if(it.lh)tag(g,x+w+16,y+h/2,it.lh,90)}
+  else if(it.t==='note'){const lines=(it.text||'').split('\n');const w=Math.max(...lines.map(l=>l.length))*8.2+18,h=lines.length*20+12;
+    if(it.rot)g.setAttribute('transform','rotate('+it.rot+' '+(it.x+w/2)+' '+(it.y+h/2)+')');
+    el('rect',{x:it.x,y:it.y,width:w,height:h,rx:3,fill:'#fff3b0',stroke:hl?'#c4302b':'#d9c25a','stroke-width':hl?2.5:1.5},g);
+    lines.forEach((l,i)=>{const t=el('text',{x:it.x+9,y:it.y+22+i*20,'font-family':'Barlow,Arial,sans-serif','font-size':16,fill:'#17212b'},g);t.textContent=l})}
+  else if(it.t==='sym'){const w=Math.max(30,it.k.length*11+14);
+    el('rect',{x:it.x-w/2,y:it.y-15,width:w,height:30,rx:15,fill:'#fff',stroke:hl?'#c4302b':INK,'stroke-width':2.5},g);
+    const t=el('text',{x:it.x,y:it.y+6,'text-anchor':'middle','font-family':'Barlow Condensed,Arial Narrow,sans-serif','font-weight':700,'font-size':17,fill:INK},g);t.textContent=it.k;
+    if(it.label){const tw=it.label.length*9.2+12;tag(g,it.x+w/2+6+tw/2,it.y,it.label,0,INK)}}
+}
+function draw(){layer.innerHTML='';S.items.forEach(it=>drawItem(it))}
+function find(id){return S.items.find(i=>i.id===id)}
+function setSel(id){sel=id;$('selbar').hidden=!id;const it=id&&find(id);$('rotSel').hidden=!(it&&it.t==='note');draw()}
+
+/* modal */
+function ask(title,fields,onOk,extra){
+  const sc=document.createElement('div');sc.className='scrim';const m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');sc.appendChild(m);
+  const h=document.createElement('h3');h.textContent=title;m.appendChild(h);const ins={};
+  fields.forEach((f,i)=>{const l=document.createElement('label');const s=document.createElement('span');s.className='lbl';s.textContent=f.l;l.appendChild(s);
+    let inp;if(f.opts){inp=document.createElement('select');f.opts.forEach(([val,txt])=>{const op=document.createElement('option');op.value=val;op.textContent=txt;inp.appendChild(op)})}else inp=document.createElement(f.multi?'textarea':'input');inp.id='m_'+f.id;inp.value=f.v||'';if(f.ph)inp.placeholder=f.ph;if(f.dec)inp.inputMode='text';l.appendChild(inp);m.appendChild(l);ins[f.id]=inp});
+  const r=document.createElement('div');r.className='row';
+  const close=()=>sc.remove();
+  if(extra){const b=document.createElement('button');b.type='button';b.className='btn danger';b.textContent=extra.l;b.onclick=()=>{close();extra.fn()};r.appendChild(b)}
+  const c=document.createElement('button');c.type='button';c.className='btn';c.textContent='Cancel';c.onclick=()=>{close();onOk(null)};
+  const ok=document.createElement('button');ok.type='button';ok.className='btn primary';ok.textContent='Save';ok.onclick=()=>{const o={};for(const k in ins)o[k]=ins[k].value;close();onOk(o)};
+  r.append(c,ok);m.appendChild(r);document.body.appendChild(sc);
+  m.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.tagName==='INPUT'){e.preventDefault();ok.click()}if(e.key==='Escape')c.click()});
+  setTimeout(()=>{const f=Object.values(ins)[0];if(f){f.focus();f.select&&f.select()}},50)}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1800)}
+
+/* edit dialogs */
+function editItem(it,isNew){
+  const done=()=>{draw();save()};
+  const cancelNew=()=>{if(isNew){S.items=S.items.filter(x=>x!==it);undo.pop();renderTools();draw()}};
+  if(it.t==='line'){ask('Line length',[{id:'v',l:'Length in feet (e.g. 24 or 24\' 6")',v:it.label?it.label:autoFt(Math.hypot(it.x2-it.x1,it.y2-it.y1)),dec:1}],o=>{if(o){it.label=fmt(o.v);done()}else if(isNew){done()}})}
+  else if(it.t==='rect'){ask('Box size',[{id:'w',l:'Width (top side)',v:it.lw||autoFt(Math.abs(it.w))},{id:'h',l:'Length (right side)',v:it.lh||autoFt(Math.abs(it.h))}],o=>{if(o){it.lw=fmt(o.w);it.lh=fmt(o.h)}done()})}
+  else if(it.t==='note'){ask('Note',[{id:'t',l:'Note text (press Return to stack words on more lines)',v:it.text,multi:1,ph:'e.g. Soft decking here'},{id:'r',l:'Direction',v:String(it.rot||0),opts:[['0','Flat (left to right)'],['-90','Vertical (reads bottom to top)'],['90','Vertical (reads top to bottom)']]}],o=>{if(o&&o.t.trim()){it.text=o.t.trim();it.rot=+o.r;done()}else if(isNew)cancelNew();else done()},isNew?null:{l:'Delete',fn:()=>{S.items=S.items.filter(x=>x!==it);setSel(null);save()}})}
+  else if(it.t==='sym'){const def=(JOBS[S.job].syms.find(s=>s.k===it.k)||{});ask(it.k+' · '+(def.n||'Symbol'),[{id:'l',l:def.ask||'Label (optional)',v:it.label}],o=>{if(o){it.label=fmt(o.l)}done()})}
+}
+
+/* pointer */
+let act=null;
+board.addEventListener('pointerdown',e=>{
+  if(tool==='scroll')return;e.preventDefault();board.setPointerCapture(e.pointerId);
+  const p=pt(e),sp=sn(p),hit=e.target.closest('[data-id]'),hid=hit&&hit.getAttribute('data-id');
+  if(tool==='pen'){act={t:'pen',pts:[[p.x,p.y]]}}
+  else if(tool==='line'||tool==='rect'){act={t:tool,a:sp,b:sp}}
+  else if(tool==='note'){const ex=hid&&find(hid);if(ex&&ex.t==='note'){snapshot();editItem(ex)}else{const it={id:uid(),t:'note',x:p.x,y:p.y-12,text:''};snapshot();S.items.push(it);editItem(it,true)}}
+  else if(tool==='sym'&&curSym){const it={id:uid(),t:'sym',x:sp.x,y:sp.y,k:curSym.k,label:''};snapshot();S.items.push(it);draw();save();if(curSym.ask)editItem(it,true)}
+  else if(tool==='erase'&&hid){snapshot();S.items=S.items.filter(i=>i.id!==hid);draw();save()}
+  else if(tool==='select'){if(hid){setSel(hid);snapshot();act={t:'move',id:hid,last:p,moved:false}}else setSel(null)}
+});
+board.addEventListener('pointermove',e=>{if(!act)return;const p=pt(e);
+  if(act.t==='pen'){act.pts.push([p.x,p.y]);temp.innerHTML='';el('path',{d:'M'+act.pts.map(q=>q.join(' ')).join('L'),fill:'none',stroke:INK,'stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round'},temp)}
+  else if(act.t==='line'){act.b=sn(p);temp.innerHTML='';el('line',{x1:act.a.x,y1:act.a.y,x2:act.b.x,y2:act.b.y,stroke:'#c4302b','stroke-width':3,'stroke-dasharray':'8 6'},temp);const l=autoFt(Math.hypot(act.b.x-act.a.x,act.b.y-act.a.y));if(l)lineLabel(temp,act.a.x,act.a.y,act.b.x,act.b.y,l)}
+  else if(act.t==='rect'){act.b=sn(p);temp.innerHTML='';el('rect',{x:Math.min(act.a.x,act.b.x),y:Math.min(act.a.y,act.b.y),width:Math.abs(act.b.x-act.a.x),height:Math.abs(act.b.y-act.a.y),fill:'none',stroke:'#c4302b','stroke-width':3,'stroke-dasharray':'8 6'},temp)}
+  else if(act.t==='move'){const it=find(act.id);let dx=p.x-act.last.x,dy=p.y-act.last.y;act.last=p;act.moved=true;
+    if(it.t==='line'){it.x1+=dx;it.y1+=dy;it.x2+=dx;it.y2+=dy}else if(it.t==='path'){it.pts.forEach(q=>{q[0]+=dx;q[1]+=dy})}else{it.x+=dx;it.y+=dy}draw()}
+});
+function endAct(){if(!act)return;const a=act;act=null;temp.innerHTML='';
+  if(a.t==='pen'&&a.pts.length>1){snapshot();S.items.push({id:uid(),t:'path',pts:a.pts});draw();save()}
+  else if(a.t==='line'&&Math.hypot(a.b.x-a.a.x,a.b.y-a.a.y)>8){snapshot();const it={id:uid(),t:'line',x1:a.a.x,y1:a.a.y,x2:a.b.x,y2:a.b.y,label:''};S.items.push(it);draw();editItem(it,true)}
+  else if(a.t==='rect'&&Math.abs(a.b.x-a.a.x)>8&&Math.abs(a.b.y-a.a.y)>8){snapshot();const it={id:uid(),t:'rect',x:a.a.x,y:a.a.y,w:a.b.x-a.a.x,h:a.b.y-a.a.y,lw:'',lh:''};S.items.push(it);draw();editItem(it,true)}
+  else if(a.t==='move'){if(!a.moved){undo.pop();renderTools()}else save()}}
+board.addEventListener('pointerup',endAct);board.addEventListener('pointercancel',endAct);
+board.addEventListener('dblclick',e=>{const h=e.target.closest('[data-id]');if(h){const it=find(h.getAttribute('data-id'));if(it&&it.t!=='path'){snapshot();editItem(it)}}});
+$('editSel').onclick=()=>{const it=find(sel);if(!it)return;if(it.t==='path'){toast('Freehand lines can be moved or deleted');return}snapshot();editItem(it)};
+$('rotSel').onclick=()=>{const it=find(sel);if(!it||it.t!=='note')return;snapshot();const order=[0,90,-90];it.rot=order[(order.indexOf(it.rot||0)+1)%3];draw();save()};
+$('delSel').onclick=()=>{if(!sel)return;snapshot();S.items=S.items.filter(i=>i.id!==sel);setSel(null);save()};
+
+/* top actions */
+$('newBtn').onclick=()=>{const sc=document.createElement('div');sc.className='scrim';sc.innerHTML='<div class="modal" role="dialog"><h3>Start a new sheet?</h3><div class="hint">This clears the customer info, the sketch and all takeoff fields on this device.</div><div class="row"><button type="button" class="btn" id="nCancel">Cancel</button><button type="button" class="btn primary" id="nOk">Clear sheet</button></div></div>';document.body.appendChild(sc);
+  $('nCancel').onclick=()=>sc.remove();$('nOk').onclick=()=>{sc.remove();const job=S.job;S={h:{},job,f:{},notes:'',items:[],scale:S.scale,snap:S.snap};undo=[];redo=[];
+  const t=new Date();S.h.h_date=t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+  ['h_name','h_addr','h_phone','h_city','h_date','h_type'].forEach(id=>$(id).value=S.h[id]||'');$('jobNotes').value='';renderFields();renderTools();draw();save();toast('New sheet started')}};
+$('copyBtn').onclick=()=>{const j=JOBS[S.job],v=S.f[S.job]||{},h=S.h;
+  let t=`REMEASURE – ${j.label.toUpperCase()}\nName: ${h.h_name||''}\nPhone: ${h.h_phone||''}\nDate: ${h.h_date||''}\nAddress: ${h.h_addr||''}, ${h.h_city||''}\nExisting type & year: ${h.h_type||''}\n\n`;
+  j.fields.forEach(f=>{const val=f.t==='calc'?f.f(v):v[f.id];if(val!==undefined&&val!=='')t+=`${f.n}: ${val}${f.u&&f.t!=='yn'&&f.t!=='sel'?' '+f.u:''}\n`});
+  const ms=S.items.filter(i=>i.t==='line'&&i.label).map(i=>i.label);if(ms.length)t+=`\nSketch lengths: ${ms.join(', ')}\n`;
+  const ss={};S.items.filter(i=>i.t==='sym').forEach(i=>ss[i.k]=(ss[i.k]||0)+1);if(Object.keys(ss).length)t+=`Symbols: ${Object.entries(ss).map(([k,n])=>k+' x'+n).join(', ')}\n`;
+  if(S.notes)t+=`\nNotes: ${S.notes}\n`;
+  navigator.clipboard.writeText(t).then(()=>toast('Summary copied'),()=>{ask('Copy this summary',[{id:'x',l:'Select all and copy',v:t,multi:1}],()=>{})})};
+
+renderJobs();renderSyms();renderFields();setTool('pen');draw();
+
+/* PDF */
+function sketchPng(){return new Promise((res,rej)=>{const keep=sel;sel=null;draw();
+  let s=new XMLSerializer().serializeToString(board);sel=keep;draw();
+  s=s.replace(/var\(--paper\)/g,'#fdfdfb').replace(/var\(--grid-major\)/g,'#a9b8c8').replace(/var\(--grid\)/g,'#cfd8e3');
+  if(!/xmlns=/.test(s))s=s.replace('<svg','<svg xmlns="http://www.w3.org/2000/svg"');
+  s=s.replace('<svg','<svg width="1000" height="1200"');
+  const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=2000;c.height=2400;const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,2000,2400);x.drawImage(img,0,0,2000,2400);res(c.toDataURL('image/jpeg',0.92))};img.onerror=rej;
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(s)})}
+async function buildPdf(){
+  const {jsPDF}=window.jspdf;const d=new jsPDF({unit:'pt',format:'letter'});const j=JOBS[S.job],v=S.f[S.job]||{},h=S.h;
+  d.setFont('helvetica','bold');d.setFontSize(16);d.text(j.label.toUpperCase()+' REMEASURE SHEET',306,40,{align:'center'});
+  d.setFont('helvetica','normal');d.setFontSize(8);d.text('Alta California Construction  ·  811 W. Gardena Blvd, Gardena, CA 90247  ·  (310) 953-8805  ·  CSLB #1106881',306,53,{align:'center'});
+  const hf=[['NAME',h.h_name],['ADDRESS',h.h_addr],['PHONE #',h.h_phone],['CITY/STATE/ZIP',h.h_city],['DATE',h.h_date],['TYPE & YEAR',h.h_type]];
+  hf.forEach(([l,val],i)=>{const x=i%2?310:36,y=74+Math.floor(i/2)*18;d.setFont('helvetica','bold');d.setFontSize(8);d.text(l+':',x,y);d.setFont('helvetica','normal');d.setFontSize(10);d.text(String(val||''),x+(i%2?78:50),y);d.setDrawColor(150);d.line(x+(i%2?78:50),y+2,x+266,y+2)});
+  const png=await sketchPng();const sh=440,sw=sh/1.2;d.addImage(png,'JPEG',(612-sw)/2,118,sw,sh);d.setDrawColor(120);d.rect((612-sw)/2,118,sw,sh);
+  let y=118+sh+14;const cw=180,rh=28;d.setDrawColor(40);
+  j.fields.forEach((f,i)=>{const col=i%3,x=36+col*cw;if(col===0&&i>0)y+=rh;if(y+rh>770){d.addPage();y=40}
+    d.rect(x,y,cw,rh);d.setFont('helvetica','bold');d.setFontSize(7.5);d.text(d.splitTextToSize(f.n,cw-8)[0],x+4,y+10);
+    let val=f.t==='calc'?f.f(v):v[f.id];val=val===undefined||val===''?'':String(val)+(f.u&&(f.t==='num'||f.t==='calc')?' '+f.u:'');
+    d.setFont('helvetica','normal');d.setFontSize(11);d.text(val,x+4,y+23)});
+  y+=rh+16;if(S.notes){const lines=d.splitTextToSize(S.notes,540);if(y+14+lines.length*12>770){d.addPage();y=40}d.setFont('helvetica','bold');d.setFontSize(9);d.text('JOB NOTES:',36,y);d.setFont('helvetica','normal');d.setFontSize(10);d.text(lines,36,y+14)}
+  return d}
+$('pdfBtn').onclick=async()=>{const b=$('pdfBtn');b.disabled=true;b.textContent='Building PDF…';
+  try{const d=await buildPdf();const name=('Remeasure '+JOBS[S.job].label+' '+(S.h.h_name||'')+' '+(S.h.h_date||'')).replace(/[^\w\- ]+/g,'').trim()+'.pdf';
+    const dl=await claude.use('downloads');
+    if(dl){try{await dl.save({filename:name,data:d.output('blob')});toast('PDF saved — open it to print')}catch(e){if(e&&e.code!=='declined')toast('Could not save the PDF ('+(e.code||'error')+')')}}
+    else{toast('Saving files is not available in this view')}}
+  catch(e){toast('Could not build the PDF')}
+  b.disabled=false;b.textContent='Save PDF to print'};
+</script>
+
+</body></html>
