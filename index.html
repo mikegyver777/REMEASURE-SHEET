@@ -139,6 +139,7 @@ textarea{border:1.5px solid var(--line);border-radius:6px;min-height:90px;resize
   <div class="sheet-wrap"><svg id="board" viewBox="0 0 1000 1200" xmlns="http://www.w3.org/2000/svg" aria-label="Drawing grid">
     <defs>
       <pattern id="minor" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M25 0H0V25" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern>
+      <pattern id="hatch" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="12" height="12" fill="#dde4ec"/><line x1="0" y1="0" x2="0" y2="12" stroke="#7f93aa" stroke-width="3"/></pattern>
       <pattern id="major" width="125" height="125" patternUnits="userSpaceOnUse"><rect width="125" height="125" fill="url(#minor)"/><path d="M125 0H0V125" fill="none" stroke="var(--grid-major)" stroke-width="1.5"/></pattern>
     </defs>
     <rect width="1000" height="1200" fill="var(--paper)"/>
@@ -212,13 +213,14 @@ const JOBS={
 };
 JOBS.free={label:'Free Style',free:true,
   fields:Array.from({length:12},(_,i)=>({id:'v'+i,nid:'n'+i,t:'free',get n(){return (S.f.free&&S.f.free['n'+i])||''}})),
-  syms:[{k:'X',n:'Mark'},{k:'DR',n:'Door'},{k:'W',n:'Window'},{k:'V',n:'Vent'},{k:'DS',n:'Downspout'},{k:'HB',n:'Hose bib'},{k:'EM',n:'Electric meter'},{k:'GM',n:'Gas meter'}]};
+  syms:[{k:'X',n:'Mark'},{k:'DR',n:'Door'},{k:'W',n:'Window'},{k:'V',n:'Vent'},{k:'DS',n:'Downspout'},{k:'HB',n:'Hose bib'},{k:'EM',n:'Electric meter'},{k:'GM',n:'Gas meter'}].map(s=>Object.assign(s,{custom:true}))};
 const TOOLS=[
  {id:'scroll',n:'Scroll',i:'<path d="M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3"/>'},
  {id:'select',n:'Move',i:'<path d="M5 3l14 8-6 2-2 6z"/>'},
  {id:'pen',n:'Pen',i:'<path d="M4 20l4-1 11-11-3-3L5 16z"/>'},
  {id:'line',n:'Line ft',i:'<path d="M4 20L20 4"/><path d="M2 18l4 4M18 2l4 4"/>'},
  {id:'dline',n:'Dashed ft',i:'<path d="M4 20l3-3M10 14l4-4M17 7l3-3"/><path d="M2 18l4 4M18 2l4 4"/>'},
+ {id:'srect',n:'Shaded',i:'<rect x="4" y="6" width="16" height="12"/><path d="M4 14l8-8M8 18l12-12M14 18l6-6"/>'},
  {id:'rect',n:'Box ft',i:'<rect x="4" y="6" width="16" height="12"/>'},
  {id:'note',n:'Note',i:'<path d="M5 4h14v11l-5 5H5z"/><path d="M14 20v-5h5M8 9h8M8 13h5"/>'},
  {id:'sym',n:'Symbol',i:'<circle cx="12" cy="12" r="8"/><path d="M9 12h6"/>'},
@@ -243,8 +245,8 @@ $('snap').checked=S.snap;$('snap').onchange=e=>{S.snap=e.target.checked;save()};
 
 /* jobs */
 function renderJobs(){const w=$('jobs');w.innerHTML='';Object.entries(JOBS).forEach(([k,j])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.id='job_'+k;b.textContent=j.label;b.setAttribute('aria-pressed',S.job===k);b.onclick=()=>{S.job=k;curSym=null;save();renderJobs();renderSyms();renderFields()};w.appendChild(b)})}
-const CUSTOM_SYM={k:'+',n:'Custom',custom:true};
-function renderSyms(){const w=$('syms');w.innerHTML='';JOBS[S.job].syms.concat([CUSTOM_SYM]).forEach(s=>{const b=document.createElement('button');b.type='button';b.className='sym';b.innerHTML='<b></b><span></span>';b.querySelector('b').textContent=s.k;b.querySelector('span').textContent=s.n;b.setAttribute('aria-pressed',tool==='sym'&&curSym&&curSym.k===s.k);b.onclick=()=>{curSym=s;setTool('sym')};w.appendChild(b)})}
+const CUSTOM_SYM={k:'+',n:'Type your own',custom:true};
+function renderSyms(){const w=$('syms');w.innerHTML='';(JOBS[S.job].free?[CUSTOM_SYM].concat(JOBS[S.job].syms):JOBS[S.job].syms.concat([CUSTOM_SYM])).forEach(s=>{const b=document.createElement('button');b.type='button';b.className='sym';b.innerHTML='<b></b><span></span>';b.querySelector('b').textContent=s.k;b.querySelector('span').textContent=s.n;b.setAttribute('aria-pressed',tool==='sym'&&curSym&&curSym.k===s.k);b.onclick=()=>{curSym=s;setTool('sym')};w.appendChild(b)})}
 function renderFields(){
   const j=JOBS[S.job];$('fieldsTitle').textContent=j.label+' takeoff';
   const v=S.f[S.job]||(S.f[S.job]={});const w=$('fields');w.innerHTML='';
@@ -269,7 +271,7 @@ function renderTools(){const w=$('tools');w.innerHTML='';
   TOOLS.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tool';b.innerHTML='<svg viewBox="0 0 24 24">'+t.i+'</svg>'+t.n;b.setAttribute('aria-pressed',tool===t.id);b.onclick=()=>{if(t.id==='sym'&&!curSym)curSym=JOBS[S.job].syms[0];setTool(t.id)};w.appendChild(b)});
   const sp=document.createElement('span');sp.className='sep';w.appendChild(sp);
   [['Undo','<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/>',doUndo,!undo.length],['Redo','<path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h3"/>',doRedo,!redo.length]].forEach(([n,i,fn,dis])=>{const b=document.createElement('button');b.type='button';b.className='tool';b.disabled=dis;b.innerHTML='<svg viewBox="0 0 24 24">'+i+'</svg>'+n;b.onclick=fn;w.appendChild(b)})}
-const HINTS={scroll:'Scroll mode: drag to move the page, pinch to zoom.',select:'Tap an item to select it, drag to move. Use Edit to change a measurement or note. Drag the red circle on a note to turn it.',pen:'Draw freehand with your finger or stylus.',line:'Drag to draw a line, then enter its length in feet.',dline:'Drag to draw a straight dashed line, then enter its length in feet.',rect:'Drag to draw a box, then enter width and length in feet.',note:'Tap an empty spot to add a note. Drag a note to move it, drag the red circle to turn it to any angle, tap it to change the text.',sym:'Pick a symbol above, then tap the sketch to place it.',erase:'Tap an item to remove it.'};
+const HINTS={scroll:'Scroll mode: drag to move the page, pinch to zoom.',select:'Tap an item to select it, drag to move. Use Edit to change a measurement or note. Drag the red circle on a note to turn it.',pen:'Draw freehand with your finger or stylus.',line:'Drag to draw a line, then enter its length in feet.',dline:'Drag to draw a straight dashed line, then enter its length in feet.',rect:'Drag to draw a box, then enter width and length in feet.',srect:'Drag to draw a shaded box (tear-off area, damage, etc.), then enter width and length in feet.',note:'Tap an empty spot to add a note. Drag a note to move it, drag the red circle to turn it to any angle, tap it to change the text.',sym:'Pick a symbol above, then tap the sketch to place it.',erase:'Tap an item to remove it.'};
 function setTool(t){tool=t;setSel(null);board.classList.toggle('scroll',t==='scroll');$('hint').textContent=HINTS[t];renderTools();renderSyms()}
 function doUndo(){if(!undo.length)return;redo.push(JSON.stringify(S.items));S.items=JSON.parse(undo.pop());setSel(null);draw();save();renderTools()}
 function doRedo(){if(!redo.length)return;undo.push(JSON.stringify(S.items));S.items=JSON.parse(redo.pop());setSel(null);draw();save();renderTools()}
@@ -291,7 +293,7 @@ function drawItem(it,parent){
     const la={x1:it.x1,y1:it.y1,x2:it.x2,y2:it.y2,stroke:hl?'#c4302b':INK,'stroke-width':3.5,'stroke-linecap':'round'};if(it.dash){la['stroke-dasharray']='14 10';la['stroke-linecap']='butt'}el('line',la,g);lineLabel(g,it.x1,it.y1,it.x2,it.y2,it.label)}
   else if(it.t==='path'){const d='M'+it.pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join('L');el('path',{d,fill:'none',stroke:'transparent','stroke-width':20,'stroke-linecap':'round'},g);el('path',{d,fill:'none',stroke:hl?'#c4302b':INK,'stroke-width':3,'stroke-linecap':'round','stroke-linejoin':'round'},g)}
   else if(it.t==='rect'){const x=Math.min(it.x,it.x+it.w),y=Math.min(it.y,it.y+it.h),w=Math.abs(it.w),h=Math.abs(it.h);
-    el('rect',{x,y,width:w,height:h,fill:'rgba(29,53,87,.04)',stroke:hl?'#c4302b':INK,'stroke-width':3.5},g);
+    el('rect',{x,y,width:w,height:h,fill:it.shade?'url(#hatch)':'rgba(29,53,87,.04)',stroke:hl?'#c4302b':INK,'stroke-width':3.5},g);
     lineLabel(g,x,y,x+w,y,it.lw);if(it.lh)tag(g,x+w+16,y+h/2,it.lh,90)}
   else if(it.t==='note'){const lines=(it.text||'').split('\n');const {w,h}=noteDims(it);
     if(it.rot)g.setAttribute('transform','rotate('+it.rot+' '+(it.x+w/2)+' '+(it.y+h/2)+')');
@@ -349,9 +351,9 @@ board.addEventListener('pointerdown',e=>{
   if(rh&&(tool==='note'||tool==='select')){snapshot();act={t:'rotate',id:rh.getAttribute('data-rot'),moved:false};return}
   if((tool==='note'||tool==='select')&&hid&&find(hid).t==='note'){setSel(hid);snapshot();act={t:'move',id:hid,last:p,moved:false,editOnTap:tool==='note'};return}
   if(tool==='pen'){act={t:'pen',pts:[[p.x,p.y]]}}
-  else if(tool==='line'||tool==='dline'||tool==='rect'){act={t:tool==='dline'?'line':tool,dash:tool==='dline',a:sp,b:sp}}
+  else if(tool==='line'||tool==='dline'||tool==='rect'||tool==='srect'){act={t:tool==='dline'?'line':tool==='srect'?'rect':tool,dash:tool==='dline',shade:tool==='srect',a:sp,b:sp}}
   else if(tool==='note'){if(sel){setSel(null);return}const it={id:uid(),t:'note',x:p.x,y:p.y-12,text:''};snapshot();S.items.push(it);editItem(it,true)}
-  else if(tool==='sym'&&curSym){const it={id:uid(),t:'sym',x:sp.x,y:sp.y,k:curSym.custom?'?':curSym.k,custom:!!curSym.custom,label:''};snapshot();S.items.push(it);draw();save();if(curSym.ask||curSym.custom)editItem(it,true)}
+  else if(tool==='sym'&&curSym){const it={id:uid(),t:'sym',x:sp.x,y:sp.y,k:curSym.k==='+'?'?':curSym.k,custom:!!curSym.custom,label:''};snapshot();S.items.push(it);draw();save();if(curSym.ask||curSym.custom)editItem(it,true)}
   else if(tool==='erase'&&hid){snapshot();S.items=S.items.filter(i=>i.id!==hid);draw();save()}
   else if(tool==='select'){if(hid){setSel(hid);snapshot();act={t:'move',id:hid,last:p,moved:false}}else setSel(null)}
 });
@@ -368,7 +370,7 @@ board.addEventListener('pointermove',e=>{if(!act)return;const p=pt(e);
 function endAct(){if(!act)return;const a=act;act=null;temp.innerHTML='';
   if(a.t==='pen'&&a.pts.length>1){snapshot();S.items.push({id:uid(),t:'path',pts:a.pts});draw();save()}
   else if(a.t==='line'&&Math.hypot(a.b.x-a.a.x,a.b.y-a.a.y)>8){snapshot();const it={id:uid(),t:'line',dash:!!a.dash,x1:a.a.x,y1:a.a.y,x2:a.b.x,y2:a.b.y,label:''};S.items.push(it);draw();editItem(it,true)}
-  else if(a.t==='rect'&&Math.abs(a.b.x-a.a.x)>8&&Math.abs(a.b.y-a.a.y)>8){snapshot();const it={id:uid(),t:'rect',x:a.a.x,y:a.a.y,w:a.b.x-a.a.x,h:a.b.y-a.a.y,lw:'',lh:''};S.items.push(it);draw();editItem(it,true)}
+  else if(a.t==='rect'&&Math.abs(a.b.x-a.a.x)>8&&Math.abs(a.b.y-a.a.y)>8){snapshot();const it={id:uid(),t:'rect',shade:!!a.shade,x:a.a.x,y:a.a.y,w:a.b.x-a.a.x,h:a.b.y-a.a.y,lw:'',lh:''};S.items.push(it);draw();editItem(it,true)}
   else if(a.t==='rotate'){if(!a.moved){undo.pop();renderTools()}else save()}
   else if(a.t==='move'){if(!a.moved){undo.pop();renderTools();if(a.editOnTap){const it=find(a.id);snapshot();editItem(it)}}else save()}}
 board.addEventListener('pointerup',endAct);board.addEventListener('pointercancel',endAct);
